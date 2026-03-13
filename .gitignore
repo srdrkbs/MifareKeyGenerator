@@ -1,0 +1,28 @@
+# Ignore build output
+bin/
+obj/
+*.exe
+*.dll
+*.pdb
+*.cache
+*.json
+*.log
+*.nuget
+*.db
+*.vs
+
+# Ignore user-specific files
+*.user
+*.suo
+*.vscode/
+
+# Ignore other unnecessary files
+*.DS_Store
+Thumbs.db
+
+# Allow project and text files
+!*.cs
+!*.csproj
+!*.txt
+!*.md
+!*.sln

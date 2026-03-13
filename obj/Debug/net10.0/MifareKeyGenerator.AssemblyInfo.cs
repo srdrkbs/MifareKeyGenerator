@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MifareKeyGenerator")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7f01cc5ae3d73b8d148e644f35e9f4c124d552b7")]
 [assembly: System.Reflection.AssemblyProductAttribute("MifareKeyGenerator")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MifareKeyGenerator")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
