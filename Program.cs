@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using System.Linq;
+using System.Text;
 
 namespace MifareKeyGenerator
 {
@@ -11,51 +12,17 @@ namespace MifareKeyGenerator
         static void Main(string[] args)
         {
             int targetKeyCount = 1000;
-            // Her çalışmada dosyanın üzerine yazmamak için tarihe göre isimlendiriyoruz
             string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
             string outputPath = "mifare_keys_" + timestamp + ".txt";
             
             HashSet<string> generatedKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             Random rnd = new Random();
 
-            // 1. Bilinen Mifare Anahtarları
-            string[] commonKeys = {
-                "A0A1A2A3A4A5", "D3F7D3F7D3F7", "B0B1B2B3B4B5", "4D3A48356142",
-                "1A2B3C4D5E6F", "A1B2C3D4E5F6", "4D4143415047", "5B5C5D5E5F60",
-                "010203040506", "112233445566", "223344556677", "7A9E58A6DB30"
-            };
-            foreach (var key in commonKeys) { generatedKeys.Add(key); }
+            // 1. İnsan (IT/Geliştirici) Psikolojisi ile Kurallar Seti
+            var humanGenKeys = GenerateHumanPsychologyKeys();
+            foreach (var key in humanGenKeys) { generatedKeys.Add(key); }
 
-            // 2. Dinamik Tarih Patternleri (Örn: Rastgele yıllar, aylar ve günler)
-            // Her çalıştığında birbirinden bağımsız tarihler üretecek
-            for (int i = 0; i < 50; i++) 
-            {
-                int year = rnd.Next(2010, 2030);
-                int month = rnd.Next(1, 13);
-                int day = rnd.Next(1, 29);
-                string dateKey = $"{year:D4}{month:D2}{day:D2}0000"; 
-                generatedKeys.Add(dateKey.Substring(0, 12));
-            }
-
-            // 3. Farklı Tekrarlı Patternler (Rastgele oluşturulan tekrarlar)
-            // Kullanıcının özellikle istediği "tekrarlı pattern" yapısı
-            string hexChars = "0123456789ABCDEF";
-            for (int i = 0; i < 50; i++)
-            {
-                // 2 karakterli tekrar (Örn: ABABABABABAB)
-                string block2 = $"{hexChars[rnd.Next(16)]}{hexChars[rnd.Next(16)]}";
-                generatedKeys.Add(string.Concat(Enumerable.Repeat(block2, 6)));
-
-                // 3 karakterli tekrar (Örn: C1AC1AC1AC1A)
-                string block3 = $"{hexChars[rnd.Next(16)]}{hexChars[rnd.Next(16)]}{hexChars[rnd.Next(16)]}";
-                generatedKeys.Add(string.Concat(Enumerable.Repeat(block3, 4)));
-                
-                // 4 karakterli tekrar (Örn: F1B2F1B2F1B2)
-                string block4 = $"{hexChars[rnd.Next(16)]}{hexChars[rnd.Next(16)]}{hexChars[rnd.Next(16)]}{hexChars[rnd.Next(16)]}";
-                generatedKeys.Add(string.Concat(Enumerable.Repeat(block4, 3)));
-            }
-
-            // 4. Kalanları güvenli rastgele generator ile tamamla
+            // 2. Kalanları güvenli rastgele generator ile tamamla
             using (RandomNumberGenerator rng = RandomNumberGenerator.Create()) {
                 byte[] buffer = new byte[6]; 
                 while (generatedKeys.Count < targetKeyCount) {
@@ -65,12 +32,64 @@ namespace MifareKeyGenerator
                 }
             }
 
-            // 5. OLUŞTURULAN LİSTEYİ KARIŞTIR (SHUFFLE)
-            // Böylece statik keyler ve patternler hep en başta kabak gibi sırıtmaz
+            // Oluşturulan listeyi karıştır
             var finalKeys = generatedKeys.Take(targetKeyCount).OrderBy(x => rnd.Next()).ToList();
             File.WriteAllLines(outputPath, finalKeys);
 
             Console.WriteLine($"Toplam {finalKeys.Count} adet benzersiz Mifare anahtarı " + outputPath + " dosyasina yazildi.");
+            Console.WriteLine("İnsan psikolojisi ile üretilen örnek anahtarlar:");
+            foreach(var k in humanGenKeys.Take(10)) Console.WriteLine(k);
+        }
+
+        static List<string> GenerateHumanPsychologyKeys() 
+        {
+            var keys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            // Hex string'e çevirmek için yardımcı fonksiyon (Mifare 6 byte = 12 hex karakter)
+            string ToHexPadded(string input) {
+                var bytes = Encoding.UTF8.GetBytes(input);
+                var hex = BitConverter.ToString(bytes).Replace("-", "");
+                if (hex.Length > 12) hex = hex.Substring(0, 12);
+                else if (hex.Length < 12) hex = hex.PadRight(12, '0');
+                return hex.ToUpper();
+            }
+
+            // A) TÜRK IT/YAZILIMCI PSİKOLOJİSİ
+            // 1. Plakalar, tutulan takımlar, kuruluş tarihleri
+            string[] trKeywords = { "1453", "1905", "1907", "1923", "06", "34", "35", "1903" };
+            // 2. Türkçe klavye klasik el alışkanlıkları ve basit kelimeler (Hex formatına döküldüğünde)
+            string[] trWords = { "qweasd", "asdzxc", "admin1", "sifre1", "123456", "112233", "654321", "197020", "turk12" };
+
+            foreach (var kw in trKeywords) keys.Add(ToHexPadded(kw));
+            foreach (var w in trWords) keys.Add(ToHexPadded(w));
+
+            // B) GLOBAL/YABANCI IT/YAZILIMCI PSİKOLOJİSİ
+            // 1. Leet Speak (1337) ve popüler geek kültürleri
+            string[] globalKw = { 
+                "C0FFEE", "BADC0DE", "DEADBEEF", "DEADC0DE", "FEEDFACE", 
+                "8BADF00D", "CAFEBABE", "BAADF00D", "DEFEC8ED"
+            };
+            // 2. Global klavye patenleri ve popüler zafiyet şifreleri
+            string[] globalWords = { "qwerty", "admin", "password", "root12", "123qwe", "!@#$%" };
+
+            foreach (var kw in globalKw) {
+                // Eğer zaten hex formatına uygunsa (uzunluğu 6-12 arası) direkt al, sonunu 0 ile doldur
+                if(System.Text.RegularExpressions.Regex.IsMatch(kw, @"\A\b[0-9a-fA-F]+\b\Z")) {
+                    keys.Add(kw.PadRight(12, '0'));
+                } else {
+                    keys.Add(ToHexPadded(kw));
+                }
+            }
+            foreach (var w in globalWords) keys.Add(ToHexPadded(w));
+
+            // C) ORTAK DAVRANIŞSAL KALIPLAR
+            // 1. Asal sayılar ve matematiksel sabitler (Pi, e vb)
+            keys.Add("314159265358"); // Pi'nin ilk basamakları
+            keys.Add("271828182845"); // e sayısının ilk basamakları
+            // 2. Sistemin kurulduğu yıl/ay (Örn: 2026 yılı için default bir yapı)
+            keys.Add("202603130000"); 
+            keys.Add("000020260313");
+
+            return keys.ToList();
         }
     }
 }
