@@ -1,0 +1,14 @@
+C:\Users\serdarakbas\source\Workspaces\CardData\MifareKeyGenerator\bin\Debug\net10.0\MifareKeyGenerator.exe
+C:\Users\serdarakbas\source\Workspaces\CardData\MifareKeyGenerator\bin\Debug\net10.0\MifareKeyGenerator.deps.json
+C:\Users\serdarakbas\source\Workspaces\CardData\MifareKeyGenerator\bin\Debug\net10.0\MifareKeyGenerator.runtimeconfig.json
+C:\Users\serdarakbas\source\Workspaces\CardData\MifareKeyGenerator\bin\Debug\net10.0\MifareKeyGenerator.dll
+C:\Users\serdarakbas\source\Workspaces\CardData\MifareKeyGenerator\bin\Debug\net10.0\MifareKeyGenerator.pdb
+C:\Users\serdarakbas\source\Workspaces\CardData\MifareKeyGenerator\obj\Debug\net10.0\MifareKeyGenerator.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\serdarakbas\source\Workspaces\CardData\MifareKeyGenerator\obj\Debug\net10.0\MifareKeyGenerator.AssemblyInfoInputs.cache
+C:\Users\serdarakbas\source\Workspaces\CardData\MifareKeyGenerator\obj\Debug\net10.0\MifareKeyGenerator.AssemblyInfo.cs
+C:\Users\serdarakbas\source\Workspaces\CardData\MifareKeyGenerator\obj\Debug\net10.0\MifareKeyGenerator.csproj.CoreCompileInputs.cache
+C:\Users\serdarakbas\source\Workspaces\CardData\MifareKeyGenerator\obj\Debug\net10.0\MifareKeyGenerator.dll
+C:\Users\serdarakbas\source\Workspaces\CardData\MifareKeyGenerator\obj\Debug\net10.0\refint\MifareKeyGenerator.dll
+C:\Users\serdarakbas\source\Workspaces\CardData\MifareKeyGenerator\obj\Debug\net10.0\MifareKeyGenerator.pdb
+C:\Users\serdarakbas\source\Workspaces\CardData\MifareKeyGenerator\obj\Debug\net10.0\MifareKeyGenerator.genruntimeconfig.cache
+C:\Users\serdarakbas\source\Workspaces\CardData\MifareKeyGenerator\obj\Debug\net10.0\ref\MifareKeyGenerator.dll
