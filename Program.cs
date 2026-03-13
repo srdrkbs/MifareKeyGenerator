@@ -4,6 +4,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace MifareKeyGenerator
 {
@@ -44,48 +45,57 @@ namespace MifareKeyGenerator
         static List<string> GenerateHumanPsychologyKeys() 
         {
             var keys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            // Hex string'e çevirmek için yardımcı fonksiyon (Mifare 6 byte = 12 hex karakter)
-            string ToHexPadded(string input) {
-                var bytes = Encoding.UTF8.GetBytes(input);
-                var hex = BitConverter.ToString(bytes).Replace("-", "");
-                if (hex.Length > 12) hex = hex.Substring(0, 12);
-                else if (hex.Length < 12) hex = hex.PadRight(12, '0');
-                return hex.ToUpper();
+            
+            // Eğer string baştan sonra sadece (0-9, A-F, a-f) den oluşuyorsa direkt pad yap. 
+            // Hex formatında DEĞİLSE arka planda UTF-8 byte dizisine çevir (böylece tüm I, Ş, Ğ vb. karakterler hex byte dizilerine döner)
+            string EncodeToMifareHex(string input) {
+                string resultHex = "";
+                
+                // Normal hex mi diye bakıyoruz 
+                bool isAlreadyHex = Regex.IsMatch(input, @"\A\b[0-9a-fA-F]+\b\Z");
+
+                if (isAlreadyHex) {
+                    resultHex = input;
+                } else {
+                    // Cümleyi tamamen byte'a dök (Örn: "ŞİFRE" -> c59e c4b0 4652 45)
+                    var bytes = Encoding.UTF8.GetBytes(input);
+                    resultHex = BitConverter.ToString(bytes).Replace("-", "");
+                }
+
+                // Mifare için net 12 Karakter sınırını koruyoruz 
+                if (resultHex.Length > 12) {
+                    resultHex = resultHex.Substring(0, 12);
+                } else if (resultHex.Length < 12) {
+                    resultHex = resultHex.PadRight(12, '0');
+                }
+
+                return resultHex.ToUpper();
             }
 
             // A) TÜRK IT/YAZILIMCI PSİKOLOJİSİ
-            // 1. Plakalar, tutulan takımlar, kuruluş tarihleri
             string[] trKeywords = { "1453", "1905", "1907", "1923", "06", "34", "35", "1903" };
-            // 2. Türkçe klavye klasik el alışkanlıkları ve basit kelimeler (Hex formatına döküldüğünde)
-            string[] trWords = { "qweasd", "asdzxc", "admin1", "sifre1", "123456", "112233", "654321", "197020", "turk12" };
+            // Türkçe harf içeren ("şifre1", "türk12" vb.) şifreler, Hex karşılıklarına başarıyla UTF-8 byte array ile dönüşecek
+            string[] trWords = { "qweasd", "asdzxc", "admin1", "şifre1", "türk12", "123456", "112233", "654321", "197020" };
 
-            foreach (var kw in trKeywords) keys.Add(ToHexPadded(kw));
-            foreach (var w in trWords) keys.Add(ToHexPadded(w));
+            foreach (var kw in trKeywords) keys.Add(EncodeToMifareHex(kw));
+            foreach (var w in trWords) keys.Add(EncodeToMifareHex(w));
 
             // B) GLOBAL/YABANCI IT/YAZILIMCI PSİKOLOJİSİ
-            // 1. Leet Speak (1337) ve popüler geek kültürleri
-            string[] globalKw = { 
+            // Zaten saf HEX yazımları
+            string[] globalKwHex = { 
                 "C0FFEE", "BADC0DE", "DEADBEEF", "DEADC0DE", "FEEDFACE", 
                 "8BADF00D", "CAFEBABE", "BAADF00D", "DEFEC8ED"
             };
-            // 2. Global klavye patenleri ve popüler zafiyet şifreleri
+            
+            // Byte'a dönüştürülecek düz metin global şifreler
             string[] globalWords = { "qwerty", "admin", "password", "root12", "123qwe", "!@#$%" };
 
-            foreach (var kw in globalKw) {
-                // Eğer zaten hex formatına uygunsa (uzunluğu 6-12 arası) direkt al, sonunu 0 ile doldur
-                if(System.Text.RegularExpressions.Regex.IsMatch(kw, @"\A\b[0-9a-fA-F]+\b\Z")) {
-                    keys.Add(kw.PadRight(12, '0'));
-                } else {
-                    keys.Add(ToHexPadded(kw));
-                }
-            }
-            foreach (var w in globalWords) keys.Add(ToHexPadded(w));
+            foreach (var kw in globalKwHex) keys.Add(EncodeToMifareHex(kw));
+            foreach (var w in globalWords) keys.Add(EncodeToMifareHex(w));
 
             // C) ORTAK DAVRANIŞSAL KALIPLAR
-            // 1. Asal sayılar ve matematiksel sabitler (Pi, e vb)
-            keys.Add("314159265358"); // Pi'nin ilk basamakları
-            keys.Add("271828182845"); // e sayısının ilk basamakları
-            // 2. Sistemin kurulduğu yıl/ay (Örn: 2026 yılı için default bir yapı)
+            keys.Add("314159265358"); 
+            keys.Add("271828182845"); 
             keys.Add("202603130000"); 
             keys.Add("000020260313");
 
